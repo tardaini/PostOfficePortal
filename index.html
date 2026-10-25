@@ -79,6 +79,49 @@
             color: var(--primary-red);
         }
 
+        /* Navigation Tabs */
+        .nav-tabs {
+            background-color: #ffffff;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            padding: 0 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 14px 18px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #4b5563;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary-red);
+            background-color: #fef2f2;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-red);
+            border-bottom-color: var(--primary-red);
+            background-color: #fef2f2;
+        }
+
+        /* Tab Content Control */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         /* Main Container */
         .container {
             max-width: 1200px;
@@ -158,7 +201,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 15px;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .dash-card {
@@ -171,10 +214,11 @@
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        .dash-card:hover {
+        .dash-card:hover, .dash-card.active-card {
             transform: translateY(-2px);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             border-color: var(--primary-red);
+            background-color: #fffafb;
         }
 
         .dash-card h4 {
@@ -188,6 +232,34 @@
             font-weight: 700;
             color: var(--primary-red);
             margin-top: 5px;
+        }
+
+        /* Filter Toolbar Component */
+        .filter-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #ffffff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-toolbar label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #374151;
+        }
+
+        .filter-toolbar select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            outline: none;
+            font-size: 0.9rem;
+            min-width: 180px;
         }
 
         /* Form Sections */
@@ -404,42 +476,79 @@
             text-align: center;
         }
 
-        /* Print Layout */
+        /* Standalone Print Mode Setup */
+        #printArea {
+            display: none;
+        }
+
         @media print {
-            body * {
-                visibility: hidden;
+            @page {
+                size: A4;
+                margin: 15mm;
             }
-            #printArea, #printArea * {
-                visibility: visible;
+
+            body {
+                background: white !important;
+                color: black !important;
+                padding: 0 !important;
+                margin: 0 !important;
             }
+
+            /* Hide all page content except #printArea */
+            body > *:not(#printArea) {
+                display: none !important;
+            }
+
             #printArea {
+                display: block !important;
                 position: absolute;
                 left: 0;
                 top: 0;
                 width: 100%;
+                background: white;
             }
-            .no-print {
-                display: none !important;
+
+            .print-card {
+                border: 2px solid #000;
+                padding: 20px;
+                margin-bottom: 20px;
+                border-radius: 4px;
             }
-        }
 
-        .print-header {
-            text-align: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #000;
-            padding-bottom: 10px;
-        }
+            .print-header {
+                text-align: center;
+                margin-bottom: 20px;
+                border-bottom: 2px solid #000;
+                padding-bottom: 10px;
+            }
 
-        .print-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
+            .print-header h2 {
+                font-size: 1.4rem;
+                margin-bottom: 4px;
+            }
 
-        .print-table td, .print-table th {
-            border: 1px solid #000;
-            padding: 8px;
-            font-size: 0.85rem;
+            .print-header h3 {
+                font-size: 1.1rem;
+                font-weight: 600;
+            }
+
+            .print-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 15px;
+            }
+
+            .print-table td, .print-table th {
+                border: 1px solid #000;
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+
+            .print-table th {
+                background-color: #f0f0f0 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
         }
     </style>
 </head>
@@ -475,6 +584,15 @@
         </div>
     </header>
 
+    <!-- TAB NAVIGATION BAR -->
+    <nav class="nav-tabs no-print">
+        <button class="tab-btn active" onclick="switchTab('tabRegistration')">Customer Account Registration</button>
+        <button class="tab-btn" onclick="switchTab('tabAccounts')">Registered Customer Accounts</button>
+        <button class="tab-btn" onclick="switchTab('tabBulkRd')">Bulk RD Posting</button>
+        <button class="tab-btn" onclick="switchTab('tabSubmittedRd')">Submitted Bulk RD Postings</button>
+        <button class="tab-btn" onclick="switchTab('tabReporting')">Financial Reporting & Analytics</button>
+    </nav>
+
     <div class="container no-print">
 
         <!-- LIVE SEARCH BAR -->
@@ -483,49 +601,286 @@
             <div id="searchResultsFlash" class="search-results-flash"></div>
         </div>
 
-        <!-- DASHBOARD METRICS -->
-        <div class="dashboard-grid">
-            <div class="dash-card" onclick="filterByAccountType('ALL')">
-                <h4>Total Accounts</h4>
-                <div class="count" id="countALL">0</div>
-            </div>
-            <div class="dash-card" onclick="filterByAccountType('RD')">
-                <h4>RD</h4>
-                <div class="count" id="countRD">0</div>
-            </div>
-            <div class="dash-card" onclick="filterByAccountType('TD')">
-                <h4>TD</h4>
-                <div class="count" id="countTD">0</div>
-            </div>
-            <div class="dash-card" onclick="filterByAccountType('SA')">
-                <h4>SA</h4>
-                <div class="count" id="countSA">0</div>
-            </div>
-            <div class="dash-card" onclick="filterByAccountType('MIS')">
-                <h4>MIS</h4>
-                <div class="count" id="countMIS">0</div>
-            </div>
-            <div class="dash-card" onclick="filterByAccountType('KVP')">
-                <h4>KVP</h4>
-                <div class="count" id="countKVP">0</div>
-            </div>
-            <div class="dash-card" onclick="filterByAccountType('NSC')">
-                <h4>NSC</h4>
-                <div class="count" id="countNSC">0</div>
+        <!-- TAB 1: CUSTOMER ACCOUNT REGISTRATION -->
+        <div id="tabRegistration" class="tab-content active">
+            <div class="card-section" id="clientFormSection">
+                <div class="section-header">
+                    <span>Customer Account Registration</span>
+                </div>
+                <form id="clientForm" onsubmit="event.preventDefault();">
+                    <input type="hidden" id="clientIndex" value="">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Account Type</label>
+                            <select id="accountType" onchange="toggleAmountLabel()">
+                                <option value="RD">RD (Recurring Deposit)</option>
+                                <option value="TD">TD (Time Deposit)</option>
+                                <option value="SA">SA (Savings Account)</option>
+                                <option value="MIS">MIS (Monthly Income Scheme)</option>
+                                <option value="KVP">KVP (Kisan Vikas Patra)</option>
+                                <option value="NSC">NSC (National Savings Cert.)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label id="amountLabel">Monthly Denomination</label>
+                            <input type="number" id="clientAmount" step="0.01" placeholder="e.g. 1000">
+                        </div>
+                        <div class="form-group">
+                            <label>Tenure (Years)</label>
+                            <select id="years">
+                                <option value="1 Year">1 Year</option>
+                                <option value="2 Years">2 Years</option>
+                                <option value="3 Years">3 Years</option>
+                                <option value="5 Years" selected>5 Years</option>
+                                <option value="10 Years">10 Years</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Date of Opening</label>
+                            <input type="date" id="clientDate">
+                        </div>
+                        <div class="form-group">
+                            <label>CIF No</label>
+                            <input type="text" id="cifNo" placeholder="CIF Number">
+                        </div>
+                        <div class="form-group">
+                            <label>ASLAAS No</label>
+                            <input type="text" id="aslaasNo" placeholder="ASLAAS Number">
+                        </div>
+                        <div class="form-group">
+                            <label>Account No</label>
+                            <input type="text" id="accountNo" placeholder="Account Number">
+                        </div>
+                        <div class="form-group">
+                            <label>Customer Name</label>
+                            <input type="text" id="customerName" placeholder="Full Name">
+                        </div>
+                        <div class="form-group">
+                            <label>Father / Husband Name</label>
+                            <input type="text" id="guardianName" placeholder="Guardian Name">
+                        </div>
+                        <div class="form-group">
+                            <label>Date of Birth</label>
+                            <input type="date" id="dob">
+                        </div>
+                        <div class="form-group">
+                            <label>Mobile No</label>
+                            <input type="text" id="mobileNo" placeholder="10-digit mobile">
+                        </div>
+                        <div class="form-group">
+                            <label>Aadhaar Card</label>
+                            <input type="text" id="aadhaarCard" placeholder="Aadhaar Number">
+                        </div>
+                        <div class="form-group">
+                            <label>PAN Card</label>
+                            <input type="text" id="panCard" placeholder="PAN Number">
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>Address</label>
+                            <input type="text" id="address" placeholder="Full Address">
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary" onclick="saveClient()">Save Customer</button>
+                        <button type="button" class="btn btn-secondary" onclick="clearClientForm()">Clear Form</button>
+                        <button type="button" class="btn btn-danger" onclick="deleteClient()">Delete Selected</button>
+                        <button type="button" class="btn btn-success" onclick="printCustomerSummary()">Print Registration Form</button>
+                    </div>
+                </form>
             </div>
         </div>
 
-        <!-- CLIENT REGISTRATION FORM -->
-        <div class="card-section" id="clientFormSection">
-            <div class="section-header">
-                <span>Customer Account Registration</span>
+        <!-- TAB 2: REGISTERED CUSTOMER ACCOUNTS -->
+        <div id="tabAccounts" class="tab-content">
+            <!-- ACCOUNT TYPE METRIC CARDS SECTION -->
+            <div class="dashboard-grid">
+                <div class="dash-card" id="cardALL" onclick="filterByAccountType('ALL')">
+                    <h4>Total Accounts</h4>
+                    <div class="count" id="countALL">0</div>
+                </div>
+                <div class="dash-card" id="cardRD" onclick="filterByAccountType('RD')">
+                    <h4>RD</h4>
+                    <div class="count" id="countRD">0</div>
+                </div>
+                <div class="dash-card" id="cardTD" onclick="filterByAccountType('TD')">
+                    <h4>TD</h4>
+                    <div class="count" id="countTD">0</div>
+                </div>
+                <div class="dash-card" id="cardSA" onclick="filterByAccountType('SA')">
+                    <h4>SA</h4>
+                    <div class="count" id="countSA">0</div>
+                </div>
+                <div class="dash-card" id="cardMIS" onclick="filterByAccountType('MIS')">
+                    <h4>MIS</h4>
+                    <div class="count" id="countMIS">0</div>
+                </div>
+                <div class="dash-card" id="cardKVP" onclick="filterByAccountType('KVP')">
+                    <h4>KVP</h4>
+                    <div class="count" id="countKVP">0</div>
+                </div>
+                <div class="dash-card" id="cardNSC" onclick="filterByAccountType('NSC')">
+                    <h4>NSC</h4>
+                    <div class="count" id="countNSC">0</div>
+                </div>
             </div>
-            <form id="clientForm" onsubmit="event.preventDefault();">
-                <input type="hidden" id="clientIndex" value="">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Account Type</label>
-                        <select id="accountType" onchange="toggleAmountLabel()">
+
+            <!-- ACCOUNT TYPE FILTER SECTION TOOLBAR -->
+            <div class="filter-toolbar">
+                <label for="accountTypeFilterDropdown">Filter Account Type Wise:</label>
+                <select id="accountTypeFilterDropdown" onchange="filterByAccountType(this.value)">
+                    <option value="ALL">All Account Types</option>
+                    <option value="RD">RD (Recurring Deposit)</option>
+                    <option value="TD">TD (Time Deposit)</option>
+                    <option value="SA">SA (Savings Account)</option>
+                    <option value="MIS">MIS (Monthly Income Scheme)</option>
+                    <option value="KVP">KVP (Kisan Vikas Patra)</option>
+                    <option value="NSC">NSC (National Savings Cert.)</option>
+                </select>
+            </div>
+
+            <div class="card-section" id="accountsListSection">
+                <div class="section-header">
+                    <span>Registered Customer Accounts <small id="currentFilterTitle" style="font-size:0.85rem; color:#6b7280;"></small></span>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Acc No</th>
+                                <th>Customer Name</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Tenure</th>
+                                <th>Date</th>
+                                <th>Mobile</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: BULK RD POSTING -->
+        <div id="tabBulkRd" class="tab-content">
+            <div class="card-section" id="bulkRdSection">
+                <div class="section-header">
+                    <span>Bulk RD Posting</span>
+                </div>
+
+                <label style="font-size:0.85rem; font-weight:600; color:#374151; display:block; margin-bottom:5px;">Select Active RD Accounts to Include:</label>
+                <div id="rdAccountSelectionList" class="rd-selection-box"></div>
+
+                <form id="bulkRdForm" onsubmit="event.preventDefault();">
+                    <input type="hidden" id="rdIndex" value="">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Posting Date</label>
+                            <input type="date" id="rdDate">
+                        </div>
+                        <div class="form-group">
+                            <label>Reference No</label>
+                            <input type="text" id="refNo" placeholder="Reference No">
+                        </div>
+                        <div class="form-group">
+                            <label>Calculated Total Amount</label>
+                            <input type="number" id="rdAmount" step="0.01" oninput="calculateBulkDeductions()">
+                        </div>
+                        <div class="form-group">
+                            <label>Default Fee (DF)</label>
+                            <input type="number" id="df" step="0.01" value="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label>TDS (0.08%)</label>
+                            <input type="number" id="tds" step="0.01" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Commission (3.92%)</label>
+                            <input type="number" id="commission" step="0.01" readonly>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary" onclick="saveBulkRD()">Submit RD Posting</button>
+                        <button type="button" class="btn btn-secondary" onclick="clearBulkRDForm()">Clear Form</button>
+                        <button type="button" class="btn btn-danger" onclick="deleteBulkRD()">Delete Selected</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- TAB 4: SUBMITTED BULK RD POSTINGS -->
+        <div id="tabSubmittedRd" class="tab-content">
+            <div class="card-section">
+                <div class="section-header">
+                    <span>Submitted Bulk RD Postings</span>
+                    <button class="btn btn-success" style="padding: 4px 10px; font-size: 0.85rem;" onclick="printBulkRDRecords()">Print RD Summary</button>
+                </div>
+
+                <div style="display:flex; gap:15px; margin-bottom:15px; align-items:center; flex-wrap:wrap;">
+                    <div class="form-group" style="flex:1; min-width:140px;">
+                        <label>From Date</label>
+                        <input type="date" id="rdFromDate" onchange="renderRdList()">
+                    </div>
+                    <div class="form-group" style="flex:1; min-width:140px;">
+                        <label>To Date</label>
+                        <input type="date" id="rdToDate" onchange="renderRdList()">
+                    </div>
+                    <button class="btn btn-secondary" style="margin-top:20px;" onclick="resetRdDateFilter()">Reset Filter</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Ref No</th>
+                                <th>Amount</th>
+                                <th>DF</th>
+                                <th>TDS</th>
+                                <th>Commission</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rdTableBody"></tbody>
+                        <tfoot>
+                            <tr style="font-weight: bold; background-color: #f8fafc;">
+                                <td colspan="2">Total</td>
+                                <td id="rdTotalAmount">₹0.00</td>
+                                <td id="rdTotalDF">₹0.00</td>
+                                <td id="rdTotalTDS">₹0.00</td>
+                                <td id="rdTotalCommission">₹0.00</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: FINANCIAL REPORTING & ANALYTICS -->
+        <div id="tabReporting" class="tab-content">
+            <div class="card-section">
+                <div class="section-header">
+                    <span>Financial Reporting & Analytics</span>
+                    <button class="btn btn-success" style="padding: 4px 10px; font-size: 0.85rem;" onclick="printReportSummary()">Print Full Report</button>
+                </div>
+
+                <div style="display:flex; gap:15px; margin-bottom:15px; flex-wrap:wrap; align-items: center;">
+                    <div class="form-group" style="flex:1; min-width:140px;">
+                        <label>Report From Date</label>
+                        <input type="date" id="fromDate" onchange="generateReport()">
+                    </div>
+                    <div class="form-group" style="flex:1; min-width:140px;">
+                        <label>Report To Date</label>
+                        <input type="date" id="toDate" onchange="generateReport()">
+                    </div>
+                    <div class="form-group" style="flex:1; min-width:160px;">
+                        <label>Account Type Filter</label>
+                        <select id="reportAccTypeFilter" onchange="generateReport()">
+                            <option value="ALL">All Account Types</option>
                             <option value="RD">RD (Recurring Deposit)</option>
                             <option value="TD">TD (Time Deposit)</option>
                             <option value="SA">SA (Savings Account)</option>
@@ -534,252 +889,70 @@
                             <option value="NSC">NSC (National Savings Cert.)</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label id="amountLabel">Monthly Denomination</label>
-                        <input type="number" id="clientAmount" step="0.01" placeholder="e.g. 1000">
-                    </div>
-                    <div class="form-group">
-                        <label>Tenure (Years)</label>
-                        <select id="years">
-                            <option value="1 Year">1 Year</option>
-                            <option value="2 Years">2 Years</option>
-                            <option value="3 Years">3 Years</option>
-                            <option value="5 Years" selected>5 Years</option>
-                            <option value="10 Years">10 Years</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Date of Opening</label>
-                        <input type="date" id="clientDate">
-                    </div>
-                    <div class="form-group">
-                        <label>CIF No</label>
-                        <input type="text" id="cifNo" placeholder="CIF Number">
-                    </div>
-                    <div class="form-group">
-                        <label>ASLAAS No</label>
-                        <input type="text" id="aslaasNo" placeholder="ASLAAS Number">
-                    </div>
-                    <div class="form-group">
-                        <label>Account No</label>
-                        <input type="text" id="accountNo" placeholder="Account Number">
-                    </div>
-                    <div class="form-group">
-                        <label>Customer Name</label>
-                        <input type="text" id="customerName" placeholder="Full Name">
-                    </div>
-                    <div class="form-group">
-                        <label>Father / Husband Name</label>
-                        <input type="text" id="guardianName" placeholder="Guardian Name">
-                    </div>
-                    <div class="form-group">
-                        <label>Date of Birth</label>
-                        <input type="date" id="dob">
-                    </div>
-                    <div class="form-group">
-                        <label>Mobile No</label>
-                        <input type="text" id="mobileNo" placeholder="10-digit mobile">
-                    </div>
-                    <div class="form-group">
-                        <label>Aadhaar Card</label>
-                        <input type="text" id="aadhaarCard" placeholder="Aadhaar Number">
-                    </div>
-                    <div class="form-group">
-                        <label>PAN Card</label>
-                        <input type="text" id="panCard" placeholder="PAN Number">
-                    </div>
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label>Address</label>
-                        <input type="text" id="address" placeholder="Full Address">
-                    </div>
                 </div>
 
-                <div class="btn-group">
-                    <button type="button" class="btn btn-primary" onclick="saveClient()">Save Customer</button>
-                    <button type="button" class="btn btn-secondary" onclick="clearClientForm()">Clear Form</button>
-                    <button type="button" class="btn btn-danger" onclick="deleteClient()">Delete Selected</button>
-                    <button type="button" class="btn btn-success" onclick="printCustomerSummary()">Print Registration Form</button>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Total Count</th>
+                                <th>Total Amount (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Account Opening Sum (<span id="repFilterLabel">ALL</span>)</td>
+                                <td id="repAccCount">0</td>
+                                <td id="repAccSum">0.00</td>
+                            </tr>
+                            <tr>
+                                <td>Bulk RD Posting Sum</td>
+                                <td id="repRdCount">0</td>
+                                <td id="repRdSum">0.00</td>
+                            </tr>
+                            <tr>
+                                <td>Default Fee (DF) Total</td>
+                                <td id="repDfCount">0</td>
+                                <td id="repDfSum">0.00</td>
+                            </tr>
+                            <tr>
+                                <td>TDS Total</td>
+                                <td id="repTdsCount">0</td>
+                                <td id="repTdsSum">0.00</td>
+                            </tr>
+                            <tr>
+                                <td>Commission Total</td>
+                                <td id="repCommCount">0</td>
+                                <td id="repCommSum">0.00</td>
+                            </tr>
+                            <tr style="font-weight:bold; background-color:#f8fafc;">
+                                <td>Grand Total</td>
+                                <td id="repTotalCount">0</td>
+                                <td id="repGrandTotal">0.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-            </form>
-        </div>
 
-        <!-- ACCOUNTS LIST TABLE -->
-        <div class="card-section" id="accountsListSection">
-            <div class="section-header">
-                <span>Registered Customer Accounts <small id="currentFilterTitle" style="font-size:0.85rem; color:#6b7280;"></small></span>
-            </div>
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Acc No</th>
-                            <th>Customer Name</th>
-                            <th>Type</th>
-                            <th>Amount</th>
-                            <th>Tenure</th>
-                            <th>Date</th>
-                            <th>Mobile</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="clientTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- BULK RD POSTING FORM -->
-        <div class="card-section" id="bulkRdSection">
-            <div class="section-header">
-                <span>Bulk RD Posting</span>
-            </div>
-
-            <label style="font-size:0.85rem; font-weight:600; color:#374151; display:block; margin-bottom:5px;">Select Active RD Accounts to Include:</label>
-            <div id="rdAccountSelectionList" class="rd-selection-box"></div>
-
-            <form id="bulkRdForm" onsubmit="event.preventDefault();">
-                <input type="hidden" id="rdIndex" value="">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Posting Date</label>
-                        <input type="date" id="rdDate">
-                    </div>
-                    <div class="form-group">
-                        <label>Reference No</label>
-                        <input type="text" id="refNo" placeholder="Reference No">
-                    </div>
-                    <div class="form-group">
-                        <label>Calculated Total Amount</label>
-                        <input type="number" id="rdAmount" step="0.01" oninput="calculateBulkDeductions()">
-                    </div>
-                    <div class="form-group">
-                        <label>Default Fee (DF)</label>
-                        <input type="number" id="df" step="0.01" value="0.00">
-                    </div>
-                    <div class="form-group">
-                        <label>TDS (0.08%)</label>
-                        <input type="number" id="tds" step="0.01" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label>Commission (3.92%)</label>
-                        <input type="number" id="commission" step="0.01" readonly>
+                <!-- Account Type Breakdown Analytics Sub-Table -->
+                <div style="margin-top: 25px;">
+                    <h4 style="font-size: 1rem; color: #374151; margin-bottom: 10px;">Account Type Distribution Breakdown</h4>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Account Type</th>
+                                    <th>Total Accounts</th>
+                                    <th>Total Balance / Value (₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportingTypeBreakdownBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-
-                <div class="btn-group">
-                    <button type="button" class="btn btn-primary" onclick="saveBulkRD()">Submit RD Posting</button>
-                    <button type="button" class="btn btn-secondary" onclick="clearBulkRDForm()">Clear Form</button>
-                    <button type="button" class="btn btn-danger" onclick="deleteBulkRD()">Delete Selected</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- SUBMITTED BULK RD RECORDS -->
-        <div class="card-section">
-            <div class="section-header">
-                <span>Submitted Bulk RD Postings</span>
-                <button class="btn btn-success" style="padding: 4px 10px; font-size: 0.85rem;" onclick="printBulkRDRecords()">Print RD Summary</button>
-            </div>
-
-            <div style="display:flex; gap:15px; margin-bottom:15px; align-items:center; flex-wrap:wrap;">
-                <div class="form-group" style="flex:1; min-width:140px;">
-                    <label>From Date</label>
-                    <input type="date" id="rdFromDate" onchange="renderRdList()">
-                </div>
-                <div class="form-group" style="flex:1; min-width:140px;">
-                    <label>To Date</label>
-                    <input type="date" id="rdToDate" onchange="renderRdList()">
-                </div>
-                <button class="btn btn-secondary" style="margin-top:20px;" onclick="resetRdDateFilter()">Reset Filter</button>
-            </div>
-
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Ref No</th>
-                            <th>Amount</th>
-                            <th>DF</th>
-                            <th>TDS</th>
-                            <th>Commission</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="rdTableBody"></tbody>
-                    <tfoot>
-                        <tr style="font-weight: bold; background-color: #f8fafc;">
-                            <td colspan="2">Total</td>
-                            <td id="rdTotalAmount">₹0.00</td>
-                            <td id="rdTotalDF">₹0.00</td>
-                            <td id="rdTotalTDS">₹0.00</td>
-                            <td id="rdTotalCommission">₹0.00</td>
-                            <td></td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        </div>
-
-        <!-- REPORTS & FINANCIAL SUMMARY -->
-        <div class="card-section">
-            <div class="section-header">
-                <span>Financial Reporting & Analytics</span>
-                <button class="btn btn-success" style="padding: 4px 10px; font-size: 0.85rem;" onclick="printReportSummary()">Print Full Report</button>
-            </div>
-
-            <div style="display:flex; gap:15px; margin-bottom:15px; flex-wrap:wrap;">
-                <div class="form-group" style="flex:1; min-width:140px;">
-                    <label>Report From Date</label>
-                    <input type="date" id="fromDate" onchange="generateReport()">
-                </div>
-                <div class="form-group" style="flex:1; min-width:140px;">
-                    <label>Report To Date</label>
-                    <input type="date" id="toDate" onchange="generateReport()">
-                </div>
-            </div>
-
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Category</th>
-                            <th>Total Count</th>
-                            <th>Total Amount (₹)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Account Opening Sum</td>
-                            <td id="repAccCount">0</td>
-                            <td id="repAccSum">0.00</td>
-                        </tr>
-                        <tr>
-                            <td>Bulk RD Posting Sum</td>
-                            <td id="repRdCount">0</td>
-                            <td id="repRdSum">0.00</td>
-                        </tr>
-                        <tr>
-                            <td>Default Fee (DF) Total</td>
-                            <td id="repDfCount">0</td>
-                            <td id="repDfSum">0.00</td>
-                        </tr>
-                        <tr>
-                            <td>TDS Total</td>
-                            <td id="repTdsCount">0</td>
-                            <td id="repTdsSum">0.00</td>
-                        </tr>
-                        <tr>
-                            <td>Commission Total</td>
-                            <td id="repCommCount">0</td>
-                            <td id="repCommSum">0.00</td>
-                        </tr>
-                        <tr style="font-weight:bold; background-color:#f8fafc;">
-                            <td>Grand Total</td>
-                            <td id="repTotalCount">0</td>
-                            <td id="repGrandTotal">0.00</td>
-                        </tr>
-                    </tbody>
-                </table>
             </div>
         </div>
 
@@ -801,7 +974,7 @@
         </div>
     </div>
 
-    <!-- HIDDEN PRINT AREA -->
+    <!-- ISOLATED PRINT AREA -->
     <div id="printArea"></div>
 
     <!-- FIREBASE CLOUD FIRESTORE SCRIPT INTEGRATION -->
@@ -809,7 +982,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Your Exact Firebase Configuration
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDUWv2g0VtDIyP0-N1I0Q-Jy2qcC_cdlyI",
             authDomain: "postofficeportal.firebaseapp.com",
@@ -878,6 +1051,7 @@
                     await setDoc(doc(db, "clients", id), data);
                 }
                 clearClientForm();
+                switchTab('tabAccounts');
             } catch(e) {
                 alert("Error saving data to Cloud: " + e.message);
             }
@@ -919,6 +1093,7 @@
                     await setDoc(doc(db, "rdPostings", id), data);
                 }
                 clearBulkRDForm();
+                switchTab('tabSubmittedRd');
             } catch(e) {
                 alert("Error saving RD posting: " + e.message);
             }
@@ -939,6 +1114,26 @@
 
     <!-- INTERFACE LOGIC SCRIPT -->
     <script>
+        // Tab Navigation Functionality
+        window.switchTab = function(tabId) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            const selectedTab = document.getElementById(tabId);
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
+
+            // Highlight corresponding tab button
+            const activeIndex = ['tabRegistration', 'tabAccounts', 'tabBulkRd', 'tabSubmittedRd', 'tabReporting'].indexOf(tabId);
+            if (activeIndex !== -1 && buttons[activeIndex]) {
+                buttons[activeIndex].classList.add('active');
+            }
+        };
+
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.search-container')) {
                 document.getElementById('searchResultsFlash').style.display = 'none';
@@ -950,7 +1145,7 @@
             if (id !== "") {
                 window.deleteClientDirect(id);
             } else {
-                alert("Select an account from the table below to delete.");
+                alert("Select an account from Registered Customer Accounts to delete.");
             }
         };
 
@@ -959,7 +1154,7 @@
             if (id !== "") {
                 window.deleteRdDirect(id);
             } else {
-                alert("Select an RD entry from the table to delete.");
+                alert("Select an RD entry from Submitted Bulk RD Postings to delete.");
             }
         };
 
@@ -1086,6 +1281,8 @@
             const c = window.clients.find(item => item.id === id);
             if (!c) return;
 
+            switchTab('tabRegistration');
+
             document.getElementById('clientIndex').value = id;
             document.getElementById('accountType').value = c.accountType;
             toggleAmountLabel();
@@ -1102,8 +1299,6 @@
             document.getElementById('aadhaarCard').value = c.aadhaarCard;
             document.getElementById('panCard').value = c.panCard;
             document.getElementById('address').value = c.address;
-
-            document.getElementById('clientFormSection').scrollIntoView({ behavior: 'smooth' });
         };
 
         window.printSingleCustomer = function(id) {
@@ -1112,26 +1307,28 @@
 
             const printContainer = document.getElementById('printArea');
             printContainer.innerHTML = `
-                <div class="print-header">
-                    <h2>INDIAN POST OFFICE MANAGEMENT SYSTEM</h2>
-                    <h3>Customer Account Summary</h3>
+                <div class="print-card">
+                    <div class="print-header">
+                        <h2>INDIAN POST OFFICE MANAGEMENT SYSTEM</h2>
+                        <h3>Customer Account Official Record</h3>
+                    </div>
+                    <table class="print-table">
+                        <tr><td style="width:35%;"><strong>Account Type:</strong></td><td>${c.accountType}</td></tr>
+                        <tr><td><strong>Amount / Denomination:</strong></td><td>₹${c.amount.toFixed(2)}</td></tr>
+                        <tr><td><strong>Tenure:</strong></td><td>${c.years}</td></tr>
+                        <tr><td><strong>Date of Opening:</strong></td><td>${c.date}</td></tr>
+                        <tr><td><strong>CIF No:</strong></td><td>${c.cifNo}</td></tr>
+                        <tr><td><strong>ASLAAS No:</strong></td><td>${c.aslaasNo || '-'}</td></tr>
+                        <tr><td><strong>Account No:</strong></td><td>${c.accountNo}</td></tr>
+                        <tr><td><strong>Customer Name:</strong></td><td>${c.customerName}</td></tr>
+                        <tr><td><strong>Father/Husband Name:</strong></td><td>${c.guardianName || '-'}</td></tr>
+                        <tr><td><strong>DOB:</strong></td><td>${c.dob || '-'}</td></tr>
+                        <tr><td><strong>Mobile No:</strong></td><td>${c.mobileNo || '-'}</td></tr>
+                        <tr><td><strong>Aadhaar Card:</strong></td><td>[Aadhaar Redacted]</td></tr>
+                        <tr><td><strong>PAN Card:</strong></td><td>${c.panCard || '-'}</td></tr>
+                        <tr><td><strong>Address:</strong></td><td>${c.address || '-'}</td></tr>
+                    </table>
                 </div>
-                <table class="print-table">
-                    <tr><td><strong>Account Type:</strong></td><td>${c.accountType}</td></tr>
-                    <tr><td><strong>Amount / Denomination:</strong></td><td>₹${c.amount.toFixed(2)}</td></tr>
-                    <tr><td><strong>Tenure:</strong></td><td>${c.years}</td></tr>
-                    <tr><td><strong>Date:</strong></td><td>${c.date}</td></tr>
-                    <tr><td><strong>CIF No:</strong></td><td>${c.cifNo}</td></tr>
-                    <tr><td><strong>ASLAAS No:</strong></td><td>${c.aslaasNo || '-'}</td></tr>
-                    <tr><td><strong>Account No:</strong></td><td>${c.accountNo}</td></tr>
-                    <tr><td><strong>Customer Name:</strong></td><td>${c.customerName}</td></tr>
-                    <tr><td><strong>Father/Husband Name:</strong></td><td>${c.guardianName}</td></tr>
-                    <tr><td><strong>DOB:</strong></td><td>${c.dob}</td></tr>
-                    <tr><td><strong>Mobile No:</strong></td><td>${c.mobileNo || '-'}</td></tr>
-                    <tr><td><strong>Aadhaar Card:</strong></td><td>[Aadhaar Redacted]</td></tr>
-                    <tr><td><strong>PAN Card:</strong></td><td>${c.panCard}</td></tr>
-                    <tr><td><strong>Address:</strong></td><td>${c.address}</td></tr>
-                </table>
             `;
             window.print();
         };
@@ -1178,6 +1375,8 @@
             const r = window.rdPostings.find(item => item.id === id);
             if (!r) return;
 
+            switchTab('tabBulkRd');
+
             document.getElementById('rdIndex').value = id;
             document.getElementById('rdDate').value = r.date;
             document.getElementById('refNo').value = r.refNo;
@@ -1185,8 +1384,6 @@
             document.getElementById('df').value = r.df;
             document.getElementById('tds').value = r.tds;
             document.getElementById('commission').value = r.commission;
-
-            document.getElementById('bulkRdSection').scrollIntoView({ behavior: 'smooth' });
         };
 
         window.resetRdDateFilter = function() {
@@ -1255,18 +1452,20 @@
 
             const printContainer = document.getElementById('printArea');
             printContainer.innerHTML = `
-                <div class="print-header">
-                    <h2>INDIAN POST OFFICE MANAGEMENT SYSTEM</h2>
-                    <h3>Bulk RD Posting Record Summary</h3>
+                <div class="print-card">
+                    <div class="print-header">
+                        <h2>INDIAN POST OFFICE MANAGEMENT SYSTEM</h2>
+                        <h3>Bulk RD Posting Record Summary</h3>
+                    </div>
+                    <table class="print-table">
+                        <tr><td style="width:35%;"><strong>Date:</strong></td><td>${r.date}</td></tr>
+                        <tr><td><strong>Reference No:</strong></td><td>${r.refNo}</td></tr>
+                        <tr><td><strong>Amount:</strong></td><td>₹${r.amount.toFixed(2)}</td></tr>
+                        <tr><td><strong>DF:</strong></td><td>₹${(parseFloat(r.df) || 0).toFixed(2)}</td></tr>
+                        <tr><td><strong>TDS:</strong></td><td>₹${r.tds.toFixed(2)}</td></tr>
+                        <tr><td><strong>Commission:</strong></td><td>₹${r.commission.toFixed(2)}</td></tr>
+                    </table>
                 </div>
-                <table class="print-table">
-                    <tr><td><strong>Date:</strong></td><td>${r.date}</td></tr>
-                    <tr><td><strong>Reference No:</strong></td><td>${r.refNo}</td></tr>
-                    <tr><td><strong>Amount:</strong></td><td>₹${r.amount.toFixed(2)}</td></tr>
-                    <tr><td><strong>DF:</strong></td><td>₹${(parseFloat(r.df) || 0).toFixed(2)}</td></tr>
-                    <tr><td><strong>TDS:</strong></td><td>₹${r.tds.toFixed(2)}</td></tr>
-                    <tr><td><strong>Commission:</strong></td><td>₹${r.commission.toFixed(2)}</td></tr>
-                </table>
             `;
             window.print();
         };
@@ -1304,33 +1503,35 @@
 
             const printContainer = document.getElementById('printArea');
             printContainer.innerHTML = `
-                <div class="print-header">
-                    <h2>INDIAN POST OFFICE MANAGEMENT SYSTEM</h2>
-                    <h3>Submitted Bulk RD Postings Summary</h3>
-                    <p><strong>Date Range:</strong> ${from} to ${to}</p>
+                <div class="print-card">
+                    <div class="print-header">
+                        <h2>INDIAN POST OFFICE MANAGEMENT SYSTEM</h2>
+                        <h3>Submitted Bulk RD Postings Summary</h3>
+                        <p><strong>Date Range:</strong> ${from} to ${to}</p>
+                    </div>
+                    <table class="print-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Ref No</th>
+                                <th>Amount</th>
+                                <th>DF</th>
+                                <th>TDS</th>
+                                <th>Commission</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml}
+                            <tr style="font-weight:bold; background-color:#f1f5f9;">
+                                <td colspan="2">Total</td>
+                                <td>₹${sumAmt.toFixed(2)}</td>
+                                <td>₹${sumDf.toFixed(2)}</td>
+                                <td>₹${sumTds.toFixed(2)}</td>
+                                <td>₹${sumComm.toFixed(2)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                <table class="print-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Ref No</th>
-                            <th>Amount</th>
-                            <th>DF</th>
-                            <th>TDS</th>
-                            <th>Commission</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${rowsHtml}
-                        <tr style="font-weight:bold; background-color:#f1f5f9;">
-                            <td colspan="2">Total</td>
-                            <td>₹${sumAmt.toFixed(2)}</td>
-                            <td>₹${sumDf.toFixed(2)}</td>
-                            <td>₹${sumTds.toFixed(2)}</td>
-                            <td>₹${sumComm.toFixed(2)}</td>
-                        </tr>
-                    </tbody>
-                </table>
             `;
 
             window.print();
@@ -1338,8 +1539,17 @@
 
         window.filterByAccountType = function(type) {
             window.activeFilter = type;
+            
+            // Sync dropdown filter
+            const dropdown = document.getElementById('accountTypeFilterDropdown');
+            if (dropdown) dropdown.value = type;
+
+            // Highlight card
+            document.querySelectorAll('.dash-card').forEach(c => c.classList.remove('active-card'));
+            const activeCard = document.getElementById(`card${type}`);
+            if (activeCard) activeCard.classList.add('active-card');
+
             renderAccountsList();
-            document.getElementById('accountsListSection').scrollIntoView({ behavior: 'smooth' });
         };
 
         window.renderAccountsList = function() {
@@ -1399,10 +1609,14 @@
         window.generateReport = function() {
             const from = document.getElementById('fromDate').value;
             const to = document.getElementById('toDate').value;
+            const selectedType = document.getElementById('reportAccTypeFilter').value;
+
+            document.getElementById('repFilterLabel').innerText = selectedType;
 
             let filteredClients = window.clients;
             let filteredRd = window.rdPostings;
 
+            // Date filtering
             if (from) {
                 filteredClients = filteredClients.filter(c => c.date >= from);
                 filteredRd = filteredRd.filter(r => r.date >= from);
@@ -1410,6 +1624,15 @@
             if (to) {
                 filteredClients = filteredClients.filter(c => c.date <= to);
                 filteredRd = filteredRd.filter(r => r.date <= to);
+            }
+
+            // Account Type Filtering for Account Openings
+            if (selectedType !== 'ALL') {
+                filteredClients = filteredClients.filter(c => c.accountType === selectedType);
+                // If filtering by non-RD type, RD Postings are excluded
+                if (selectedType !== 'RD') {
+                    filteredRd = [];
+                }
             }
 
             const accSum = filteredClients.reduce((sum, c) => sum + c.amount, 0);
@@ -1435,6 +1658,29 @@
 
             document.getElementById('repTotalCount').innerText = filteredClients.length + filteredRd.length;
             document.getElementById('repGrandTotal').innerText = (accSum + rdSum).toFixed(2);
+
+            // Populate Breakdown Table
+            const types = ['RD', 'TD', 'SA', 'MIS', 'KVP', 'NSC'];
+            const breakdownBody = document.getElementById('reportingTypeBreakdownBody');
+            breakdownBody.innerHTML = '';
+
+            types.forEach(t => {
+                const list = window.clients.filter(c => {
+                    let valid = c.accountType === t;
+                    if (from && c.date < from) valid = false;
+                    if (to && c.date > to) valid = false;
+                    return valid;
+                });
+                const totalVal = list.reduce((sum, item) => sum + item.amount, 0);
+
+                breakdownBody.innerHTML += `
+                    <tr>
+                        <td><strong>${t}</strong></td>
+                        <td>${list.length}</td>
+                        <td>₹${totalVal.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
         };
 
         window.printCustomerSummary = function() {
@@ -1448,26 +1694,28 @@
 
             const printContainer = document.getElementById('printArea');
             printContainer.innerHTML = `
-                <div class="print-header">
-                    <h2>INDIAN POST OFFICE MANAGEMENT SYSTEM</h2>
-                    <h3>Customer Registration Summary</h3>
+                <div class="print-card">
+                    <div class="print-header">
+                        <h2>INDIAN POST OFFICE MANAGEMENT SYSTEM</h2>
+                        <h3>Customer Registration Form</h3>
+                    </div>
+                    <table class="print-table">
+                        <tr><td style="width:35%;"><strong>Account Type:</strong></td><td>${document.getElementById('accountType').value}</td></tr>
+                        <tr><td><strong>Amount / Denomination:</strong></td><td>₹${document.getElementById('clientAmount').value}</td></tr>
+                        <tr><td><strong>Tenure:</strong></td><td>${document.getElementById('years').value}</td></tr>
+                        <tr><td><strong>Date:</strong></td><td>${document.getElementById('clientDate').value}</td></tr>
+                        <tr><td><strong>CIF No:</strong></td><td>${document.getElementById('cifNo').value}</td></tr>
+                        <tr><td><strong>ASLAAS No:</strong></td><td>${document.getElementById('aslaasNo').value}</td></tr>
+                        <tr><td><strong>Account No:</strong></td><td>${document.getElementById('accountNo').value}</td></tr>
+                        <tr><td><strong>Customer Name:</strong></td><td>${document.getElementById('customerName').value}</td></tr>
+                        <tr><td><strong>Father/Husband Name:</strong></td><td>${document.getElementById('guardianName').value}</td></tr>
+                        <tr><td><strong>DOB:</strong></td><td>${document.getElementById('dob').value}</td></tr>
+                        <tr><td><strong>Mobile No:</strong></td><td>${document.getElementById('mobileNo').value}</td></tr>
+                        <tr><td><strong>Aadhaar Card:</strong></td><td>[Aadhaar Redacted]</td></tr>
+                        <tr><td><strong>PAN Card:</strong></td><td>${document.getElementById('panCard').value}</td></tr>
+                        <tr><td><strong>Address:</strong></td><td>${document.getElementById('address').value}</td></tr>
+                    </table>
                 </div>
-                <table class="print-table">
-                    <tr><td><strong>Account Type:</strong></td><td>${document.getElementById('accountType').value}</td></tr>
-                    <tr><td><strong>Amount / Denomination:</strong></td><td>₹${document.getElementById('clientAmount').value}</td></tr>
-                    <tr><td><strong>Tenure:</strong></td><td>${document.getElementById('years').value}</td></tr>
-                    <tr><td><strong>Date:</strong></td><td>${document.getElementById('clientDate').value}</td></tr>
-                    <tr><td><strong>CIF No:</strong></td><td>${document.getElementById('cifNo').value}</td></tr>
-                    <tr><td><strong>ASLAAS No:</strong></td><td>${document.getElementById('aslaasNo').value}</td></tr>
-                    <tr><td><strong>Account No:</strong></td><td>${document.getElementById('accountNo').value}</td></tr>
-                    <tr><td><strong>Customer Name:</strong></td><td>${document.getElementById('customerName').value}</td></tr>
-                    <tr><td><strong>Father/Husband Name:</strong></td><td>${document.getElementById('guardianName').value}</td></tr>
-                    <tr><td><strong>DOB:</strong></td><td>${document.getElementById('dob').value}</td></tr>
-                    <tr><td><strong>Mobile No:</strong></td><td>${document.getElementById('mobileNo').value}</td></tr>
-                    <tr><td><strong>Aadhaar Card:</strong></td><td>[Aadhaar Redacted]</td></tr>
-                    <tr><td><strong>PAN Card:</strong></td><td>${document.getElementById('panCard').value}</td></tr>
-                    <tr><td><strong>Address:</strong></td><td>${document.getElementById('address').value}</td></tr>
-                </table>
             `;
 
             window.print();
@@ -1477,54 +1725,57 @@
             const printContainer = document.getElementById('printArea');
             const fromDate = document.getElementById('fromDate').value || 'Beginning';
             const toDate = document.getElementById('toDate').value || 'Present';
+            const selectedType = document.getElementById('reportAccTypeFilter').value;
 
             printContainer.innerHTML = `
-                <div class="print-header">
-                    <h2>INDIAN POST OFFICE MANAGEMENT SYSTEM</h2>
-                    <h3>Financial & Reporting Summary</h3>
-                    <p><strong>Period:</strong> ${fromDate} to ${toDate}</p>
+                <div class="print-card">
+                    <div class="print-header">
+                        <h2>INDIAN POST OFFICE MANAGEMENT SYSTEM</h2>
+                        <h3>Financial & Analytics Report Summary</h3>
+                        <p><strong>Period:</strong> ${fromDate} to ${toDate} | <strong>Account Type Filter:</strong> ${selectedType}</p>
+                    </div>
+                    <table class="print-table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Total Entries</th>
+                                <th>Total Amount (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Account Opening Amount (${selectedType})</td>
+                                <td>${document.getElementById('repAccCount').innerText}</td>
+                                <td>₹${document.getElementById('repAccSum').innerText}</td>
+                            </tr>
+                            <tr>
+                                <td>Bulk RD Posting Amount</td>
+                                <td>${document.getElementById('repRdCount').innerText}</td>
+                                <td>₹${document.getElementById('repRdSum').innerText}</td>
+                            </tr>
+                            <tr>
+                                <td>Total DF</td>
+                                <td>${document.getElementById('repDfCount').innerText}</td>
+                                <td>₹${document.getElementById('repDfSum').innerText}</td>
+                            </tr>
+                            <tr>
+                                <td>Total TDS</td>
+                                <td>${document.getElementById('repTdsCount').innerText}</td>
+                                <td>₹${document.getElementById('repTdsSum').innerText}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Commission</td>
+                                <td>${document.getElementById('repCommCount').innerText}</td>
+                                <td>₹${document.getElementById('repCommSum').innerText}</td>
+                            </tr>
+                            <tr style="font-weight: bold; background-color:#f0f0f0;">
+                                <td>Grand Total</td>
+                                <td>${document.getElementById('repTotalCount').innerText}</td>
+                                <td>₹${document.getElementById('repGrandTotal').innerText}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                <table class="print-table">
-                    <thead>
-                        <tr>
-                            <th>Category</th>
-                            <th>Total Entries</th>
-                            <th>Total Amount (₹)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Account Opening Amount</td>
-                            <td>${document.getElementById('repAccCount').innerText}</td>
-                            <td>${document.getElementById('repAccSum').innerText}</td>
-                        </tr>
-                        <tr>
-                            <td>Bulk RD Posting Amount</td>
-                            <td>${document.getElementById('repRdCount').innerText}</td>
-                            <td>${document.getElementById('repRdSum').innerText}</td>
-                        </tr>
-                        <tr>
-                            <td>Total DF</td>
-                            <td>${document.getElementById('repDfCount').innerText}</td>
-                            <td>${document.getElementById('repDfSum').innerText}</td>
-                        </tr>
-                        <tr>
-                            <td>Total TDS</td>
-                            <td>${document.getElementById('repTdsCount').innerText}</td>
-                            <td>${document.getElementById('repTdsSum').innerText}</td>
-                        </tr>
-                        <tr>
-                            <td>Total Commission</td>
-                            <td>${document.getElementById('repCommCount').innerText}</td>
-                            <td>${document.getElementById('repCommSum').innerText}</td>
-                        </tr>
-                        <tr style="font-weight: bold;">
-                            <td>Grand Total</td>
-                            <td>${document.getElementById('repTotalCount').innerText}</td>
-                            <td>${document.getElementById('repGrandTotal').innerText}</td>
-                        </tr>
-                    </tbody>
-                </table>
             `;
 
             window.print();
