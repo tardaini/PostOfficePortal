@@ -29,6 +29,28 @@
             padding-bottom: 60px;
         }
 
+        /* Toast / Notification Banner */
+        .toast-notification {
+            display: none;
+            padding: 12px 18px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .toast-success {
+            background-color: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         /* Header Navigation */
         header {
             background-color: var(--primary-red);
@@ -607,6 +629,12 @@
                 <div class="section-header">
                     <span>Customer Account Registration</span>
                 </div>
+                
+                <!-- SUCCESS MESSAGE BANNER -->
+                <div id="clientSuccessMsg" class="toast-notification toast-success">
+                    ✓ Customer Account saved successfully!
+                </div>
+
                 <form id="clientForm" onsubmit="event.preventDefault();">
                     <input type="hidden" id="clientIndex" value="">
                     <div class="form-grid">
@@ -768,6 +796,11 @@
             <div class="card-section" id="bulkRdSection">
                 <div class="section-header">
                     <span>Bulk RD Posting</span>
+                </div>
+
+                <!-- SUCCESS MESSAGE BANNER -->
+                <div id="rdSuccessMsg" class="toast-notification toast-success">
+                    ✓ Bulk RD Posting submitted successfully!
                 </div>
 
                 <label style="font-size:0.85rem; font-weight:600; color:#374151; display:block; margin-bottom:5px;">Select Active RD Accounts to Include:</label>
@@ -1051,7 +1084,11 @@
                     await setDoc(doc(db, "clients", id), data);
                 }
                 clearClientForm();
-                switchTab('tabAccounts');
+                
+                // Show completion banner on the same tab without switching tabs
+                const msgBox = document.getElementById('clientSuccessMsg');
+                msgBox.style.display = 'block';
+                setTimeout(() => { msgBox.style.display = 'none'; }, 4000);
             } catch(e) {
                 alert("Error saving data to Cloud: " + e.message);
             }
@@ -1093,7 +1130,11 @@
                     await setDoc(doc(db, "rdPostings", id), data);
                 }
                 clearBulkRDForm();
-                switchTab('tabSubmittedRd');
+                
+                // Show completion banner on the same tab without switching tabs
+                const msgBox = document.getElementById('rdSuccessMsg');
+                msgBox.style.display = 'block';
+                setTimeout(() => { msgBox.style.display = 'none'; }, 4000);
             } catch(e) {
                 alert("Error saving RD posting: " + e.message);
             }
