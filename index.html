@@ -383,6 +383,28 @@
             font-weight: 600;
         }
 
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.2s;
+        }
+
+        th.sortable:hover {
+            background-color: #e2e8f0;
+        }
+
+        .sort-icon {
+            display: inline-block;
+            margin-left: 5px;
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        th.sortable.active-sort .sort-icon {
+            color: var(--primary-red);
+            font-weight: bold;
+        }
+
         td {
             padding: 10px;
             border-bottom: 1px solid var(--border-color);
@@ -852,28 +874,51 @@
                     <button class="btn btn-success" style="padding: 4px 10px; font-size: 0.85rem;" onclick="printBulkRDRecords()">Print RD Summary</button>
                 </div>
 
-                <div style="display:flex; gap:15px; margin-bottom:15px; align-items:center; flex-wrap:wrap;">
-                    <div class="form-group" style="flex:1; min-width:140px;">
-                        <label>From Date</label>
-                        <input type="date" id="rdFromDate" onchange="renderRdList()">
+                <div style="display:flex; gap:15px; margin-bottom:15px; align-items:center; flex-wrap:wrap; justify-content: space-between;">
+                    <div style="display:flex; gap:15px; align-items:center; flex-wrap:wrap; flex:1;">
+                        <div class="form-group" style="flex:1; min-width:140px;">
+                            <label>From Date</label>
+                            <input type="date" id="rdFromDate" onchange="renderRdList()">
+                        </div>
+                        <div class="form-group" style="flex:1; min-width:140px;">
+                            <label>To Date</label>
+                            <input type="date" id="rdToDate" onchange="renderRdList()">
+                        </div>
+                        <button class="btn btn-secondary" style="margin-top:20px;" onclick="resetRdDateFilter()">Reset Filter</button>
                     </div>
-                    <div class="form-group" style="flex:1; min-width:140px;">
-                        <label>To Date</label>
-                        <input type="date" id="rdToDate" onchange="renderRdList()">
+                    
+                    <div style="display:flex; gap:10px; align-items:center; margin-top: 15px;">
+                        <div class="form-group" style="min-width: 150px;">
+                            <label>Sort By</label>
+                            <select id="rdSortColumn" onchange="handleSortSelectChange()">
+                                <option value="date">Date</option>
+                                <option value="refNo">Ref No</option>
+                                <option value="amount">Amount</option>
+                                <option value="df">DF</option>
+                                <option value="tds">TDS</option>
+                                <option value="commission">Commission</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="min-width: 130px;">
+                            <label>Order</label>
+                            <select id="rdSortDirection" onchange="handleSortSelectChange()">
+                                <option value="asc">Ascending (▲)</option>
+                                <option value="desc">Descending (▼)</option>
+                            </select>
+                        </div>
                     </div>
-                    <button class="btn btn-secondary" style="margin-top:20px;" onclick="resetRdDateFilter()">Reset Filter</button>
                 </div>
 
                 <div class="table-responsive">
                     <table>
                         <thead>
                             <tr>
-                                <th>Date</th>
-                                <th>Ref No</th>
-                                <th>Amount</th>
-                                <th>DF</th>
-                                <th>TDS</th>
-                                <th>Commission</th>
+                                <th class="sortable" id="th-date" onclick="setRdSort('date')">Date <span class="sort-icon" id="sort-icon-date">↕</span></th>
+                                <th class="sortable" id="th-refNo" onclick="setRdSort('refNo')">Ref No <span class="sort-icon" id="sort-icon-refNo">↕</span></th>
+                                <th class="sortable" id="th-amount" onclick="setRdSort('amount')">Amount <span class="sort-icon" id="sort-icon-amount">↕</span></th>
+                                <th class="sortable" id="th-df" onclick="setRdSort('df')">DF <span class="sort-icon" id="sort-icon-df">↕</span></th>
+                                <th class="sortable" id="th-tds" onclick="setRdSort('tds')">TDS <span class="sort-icon" id="sort-icon-tds">↕</span></th>
+                                <th class="sortable" id="th-commission" onclick="setRdSort('commission')">Commission <span class="sort-icon" id="sort-icon-commission">↕</span></th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -1155,6 +1200,12 @@
 
     <!-- INTERFACE LOGIC SCRIPT -->
     <script>
+        // Global sorting state for RD Postings
+        window.rdSortState = {
+            column: 'date',
+            direction: 'asc'
+        };
+
         // Tab Navigation Functionality
         window.switchTab = function(tabId) {
             const contents = document.querySelectorAll('.tab-content');
@@ -1433,16 +1484,78 @@
             renderRdList();
         };
 
+        window.setRdSort = function(column) {
+            if (window.rdSortState.column === column) {
+                window.rdSortState.direction = window.rdSortState.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                window.rdSortState.column = column;
+                window.rdSortState.direction = 'asc';
+            }
+            updateSortControlsUI();
+            renderRdList();
+        };
+
+        window.handleSortSelectChange = function() {
+            window.rdSortState.column = document.getElementById('rdSortColumn').value;
+            window.rdSortState.direction = document.getElementById('rdSortDirection').value;
+            updateSortControlsUI();
+            renderRdList();
+        };
+
+        window.updateSortControlsUI = function() {
+            const colSelect = document.getElementById('rdSortColumn');
+            const dirSelect = document.getElementById('rdSortDirection');
+            if (colSelect) colSelect.value = window.rdSortState.column;
+            if (dirSelect) dirSelect.value = window.rdSortState.direction;
+
+            const cols = ['date', 'refNo', 'amount', 'df', 'tds', 'commission'];
+            cols.forEach(c => {
+                const th = document.getElementById(`th-${c}`);
+                const icon = document.getElementById(`sort-icon-${c}`);
+                if (th && icon) {
+                    if (c === window.rdSortState.column) {
+                        th.classList.add('active-sort');
+                        icon.innerText = window.rdSortState.direction === 'asc' ? '▲' : '▼';
+                    } else {
+                        th.classList.remove('active-sort');
+                        icon.innerText = '↕';
+                    }
+                }
+            });
+        };
+
         window.getFilteredRdData = function() {
             const from = document.getElementById('rdFromDate').value;
             const to = document.getElementById('rdToDate').value;
 
-            return window.rdPostings.filter(r => {
+            let filtered = window.rdPostings.filter(r => {
                 let valid = true;
                 if (from && r.date < from) valid = false;
                 if (to && r.date > to) valid = false;
                 return valid;
             });
+
+            const col = window.rdSortState.column;
+            const dir = window.rdSortState.direction === 'asc' ? 1 : -1;
+
+            filtered.sort((a, b) => {
+                let valA = a[col];
+                let valB = b[col];
+
+                if (col === 'df' || col === 'amount' || col === 'tds' || col === 'commission') {
+                    valA = parseFloat(valA) || 0;
+                    valB = parseFloat(valB) || 0;
+                } else {
+                    valA = (valA || '').toString().toLowerCase();
+                    valB = (valB || '').toString().toLowerCase();
+                }
+
+                if (valA < valB) return -1 * dir;
+                if (valA > valB) return 1 * dir;
+                return 0;
+            });
+
+            return filtered;
         };
 
         window.renderRdList = function() {
@@ -1643,6 +1756,7 @@
 
             renderAccountsList();
             renderRdAccountsSelection();
+            updateSortControlsUI();
             renderRdList();
             generateReport();
         };
